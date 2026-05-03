@@ -86,7 +86,7 @@ app.use(cors({
     callback(new Error(`Origem não permitida pelo CORS: ${origin}`));
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-Device-Id'],
 }));
 
 // ─── Body parsing com limite contra JSON Flood ────────────────────────────────
