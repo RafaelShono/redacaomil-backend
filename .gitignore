@@ -1,0 +1,19 @@
+# Node.js dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.vite/
+
+# Local environment variables
+.env
+backend/.env
+
+# Logs
+*.log
+
+# IDE/editor settings
+.vscode/
+.idea/
+.DS_Store
