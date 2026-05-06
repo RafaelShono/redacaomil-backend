@@ -93,12 +93,12 @@ function validarResultado(resultado) {
 /**
  * Chama o endpoint do Vertex AI com retry automático em falhas transitórias.
  */
-async function callVertex(prompt, tentativa = 1) {
+async function callVertex(prompt, tema = 'AGENTES_ENEM_REDACAOMIL', tentativa = 1) {
   try {
     const response = await axios.post(
       `${VERTEX_URL}/corrigir`,
       {
-        tema: 'AGENTES_ENEM_REDACAOMIL',
+        tema,
         redacao: prompt,
       },
       {
@@ -125,7 +125,7 @@ async function callVertex(prompt, tentativa = 1) {
       const delay = RETRY_DELAY * tentativa;
       console.warn(`[Vertex] Tentativa ${tentativa} falhou (status ${status ?? 'sem resposta'}). Retry em ${delay}ms...`);
       await sleep(delay);
-      return callVertex(prompt, tentativa + 1);
+      return callVertex(prompt, tema, tentativa + 1);
     }
 
     throw new Error(`Vertex AI falhou após ${tentativa} tentativa(s): ${JSON.stringify(detalhes)}`);
@@ -227,4 +227,4 @@ async function corrigirRedacao(tema, redacao) {
   return resultado;
 }
 
-export { corrigirRedacao };
+export { corrigirRedacao, callVertex, parseJsonSafe };

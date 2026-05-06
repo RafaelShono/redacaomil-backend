@@ -1,16 +1,7 @@
 import axios from 'axios';
+import { callVertex, parseJsonSafe } from './aiService.js';
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY || '';
-const VERTEX_URL = process.env.VERTEX_AI_URL;
-const VERTEX_API_KEY = process.env.VERTEX_API_KEY;
-
-if (!VERTEX_URL) {
-  throw new Error('VERTEX_AI_URL não está configurada nas variáveis de ambiente.');
-}
-if (!VERTEX_API_KEY) {
-  throw new Error('VERTEX_API_KEY não está configurada nas variáveis de ambiente.');
-}
-
 async function fetchFromBrave(query) {
   if (!BRAVE_API_KEY) {
     console.warn('BRAVE_API_KEY não configurada. Pulando busca externa.');
@@ -86,32 +77,10 @@ Crie no máximo 3 textos motivadores. Lembre-se, apenas um JSON cru perfeito.
 `;
 
   try {
-    // 3. Chamar a mesma API que faz o roteamento da Vertex, adaptando o Prompt
-    const response = await axios.post(`${VERTEX_URL}/corrigir`, {
-      tema: "GERADOR_DE_TEMA",
-      redacao: prompt
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-API-Key': VERTEX_API_KEY
-      }
-    });
-
-    let data = response.data;
-    let resultado = data.resultado || data;
-    
-    // Tratamento caso venha com markdown
-    if (typeof resultado === 'string') {
-      try {
-        const cleaned = resultado.replace(/\`\`\`json/g, '').replace(/\`\`\`/g, '').trim();
-        resultado = JSON.parse(cleaned);
-      } catch (e) {
-        console.error("Falha ao fazer parse do JSON do modelo Vertex AI na geração de tema", e);
-      }
-    }
-
-    return resultado;
-
+      const data = await callVertex(prompt, 'GERADOR_DE_TEMA');
+      const raw = data.resultado ?? data;
+      const resultado = parseJsonSafe(raw);
+      return resultado;
   } catch (error) {
     console.error("Falha na chamada da Vertex AI para gerar tema", error.response?.data || error.message);
     throw new Error('Falha ao gerar o tema com a IA');
